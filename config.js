@@ -6,8 +6,19 @@
 
 export const CONFIG = {
   sprites: {
-    cliente: "/cliente.png",
-    asesora: "/asesora.png",
+    clientes: [
+      "/cliente.png",
+      "/cliente1.png",
+      "/cliente2.png",
+      "/cliente3.png",
+      "/cliente4.png",
+      "/cliente5.png",
+      "/cliente6.png",
+      "/cliente7.png",
+      "/cliente8.png",
+      "/cliente9.png",
+    ],
+    asesoras: ["/asesora.png", "/asesora2.png"],
     oficina: "/oficina.png",
   },
 

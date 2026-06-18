@@ -643,9 +643,13 @@ label span {
 
 .advisor-station-label {
   position: absolute;
-  top: 6px;
-  left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -100%);
+  z-index: 6;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(255, 252, 247, 0.96);
+  border: 1px solid rgba(23, 49, 60, 0.1);
+  box-shadow: 0 8px 16px rgba(23, 49, 60, 0.08);
   font-size: 0.74rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -666,11 +670,16 @@ label span {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  border-radius: 0;
   pointer-events: none;
 }
 
 .cliente-sprite {
   z-index: 4;
+  overflow: visible;
+  background: transparent;
+  border: none;
+  box-shadow: none;
   transition: filter 0.24s ease;
 }
 
@@ -680,12 +689,16 @@ label span {
 
 .asesora-sprite {
   z-index: 2;
+  overflow: visible;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .fallback-avatar {
   width: 100%;
   height: 100%;
-  border-radius: 50% 50% 40% 40%;
+  border-radius: 50%;
   background: linear-gradient(180deg, rgba(47, 111, 115, 0.94), rgba(33, 71, 76, 0.92));
   box-shadow: 0 10px 20px rgba(33, 71, 76, 0.2);
 }

@@ -142,7 +142,7 @@ class Cliente {
     this.label.textContent = `C${id}`;
 
     const sprite = crearSpriteImagen(
-      simulacion.configuracion.sprites.cliente,
+      simulacion.obtenerSpriteCliente(),
       "fallback-avatar client"
     );
 
@@ -307,23 +307,24 @@ class Asesora {
     const accent = document.createElement("div");
     accent.className = "desk-accent";
 
-    const label = document.createElement("div");
-    label.className = "advisor-station-label";
-    label.textContent = `Puesto ${id}`;
-
-    this.elementoDesk.append(label, surface, accent);
+    this.elementoDesk.append(surface, accent);
     this.simulacion.dom.advisorsLayer.appendChild(this.elementoDesk);
 
     this.elementoSprite = document.createElement("div");
     this.elementoSprite.className = "sprite asesora-sprite";
 
     const sprite = crearSpriteImagen(
-      simulacion.configuracion.sprites.asesora,
+      simulacion.obtenerSpriteAsesora(id - 1),
       "fallback-avatar"
     );
 
     this.elementoSprite.append(sprite.image, sprite.fallback);
     this.simulacion.dom.advisorsLayer.appendChild(this.elementoSprite);
+
+    this.elementoEtiqueta = document.createElement("div");
+    this.elementoEtiqueta.className = "advisor-station-label";
+    this.elementoEtiqueta.textContent = `Puesto ${id}`;
+    this.simulacion.dom.advisorsLayer.appendChild(this.elementoEtiqueta);
 
     this.renderizar();
   }
@@ -405,11 +406,15 @@ class Asesora {
     this.elementoSprite.style.top = `${this.posicion.spriteY}px`;
     this.elementoSprite.style.width = `${tamaño}px`;
     this.elementoSprite.style.height = `${tamaño}px`;
+
+    this.elementoEtiqueta.style.left = `${this.posicion.spriteX}px`;
+    this.elementoEtiqueta.style.top = `${this.posicion.spriteY - tamaño / 2 - 28}px`;
   }
 
   destruir() {
     this.elementoDesk.remove();
     this.elementoSprite.remove();
+    this.elementoEtiqueta.remove();
   }
 }
 
@@ -521,6 +526,7 @@ class Simulacion {
     this.jornadaLlegadasCerradas = false;
     this.clientesRechazados = 0;
     this.clientesPendientesAlCierre = 0;
+    this.prepararSecuenciaSpritesClientes();
 
     this.cola = new Cola(this);
     this.ocultarModalResumen();
@@ -536,6 +542,78 @@ class Simulacion {
     this.asesoras = [];
     this.programarSiguienteLlegada();
     this.actualizarEtiquetaEstado();
+  }
+
+  obtenerListaSpritesClientes() {
+    const { sprites } = this.configuracion;
+
+    if (Array.isArray(sprites?.clientes) && sprites.clientes.length > 0) {
+      return sprites.clientes;
+    }
+
+    return sprites?.cliente ? [sprites.cliente] : [];
+  }
+
+  obtenerListaSpritesAsesoras() {
+    const { sprites } = this.configuracion;
+
+    if (Array.isArray(sprites?.asesoras) && sprites.asesoras.length > 0) {
+      return sprites.asesoras;
+    }
+
+    return sprites?.asesora ? [sprites.asesora] : [];
+  }
+
+  mezclarArreglo(items) {
+    const copia = [...items];
+
+    for (let indice = copia.length - 1; indice > 0; indice -= 1) {
+      const aleatorio = Math.floor(Math.random() * (indice + 1));
+      [copia[indice], copia[aleatorio]] = [copia[aleatorio], copia[indice]];
+    }
+
+    return copia;
+  }
+
+  prepararSecuenciaSpritesClientes() {
+    this.secuenciaSpritesClientes = this.mezclarArreglo(
+      this.obtenerListaSpritesClientes()
+    );
+    this.indiceSpriteCliente = 0;
+  }
+
+  obtenerSpriteCliente() {
+    const sprites = this.obtenerListaSpritesClientes();
+
+    if (sprites.length === 0) {
+      return "";
+    }
+
+    if (
+      !Array.isArray(this.secuenciaSpritesClientes) ||
+      this.secuenciaSpritesClientes.length === 0
+    ) {
+      this.prepararSecuenciaSpritesClientes();
+    }
+
+    if (this.indiceSpriteCliente >= this.secuenciaSpritesClientes.length) {
+      this.secuenciaSpritesClientes = this.mezclarArreglo(sprites);
+      this.indiceSpriteCliente = 0;
+    }
+
+    const sprite = this.secuenciaSpritesClientes[this.indiceSpriteCliente];
+    this.indiceSpriteCliente += 1;
+    return sprite;
+  }
+
+  obtenerSpriteAsesora(indice) {
+    const sprites = this.obtenerListaSpritesAsesoras();
+
+    if (sprites.length === 0) {
+      return "";
+    }
+
+    return sprites[indice % sprites.length];
   }
 
   vincularEventos() {
