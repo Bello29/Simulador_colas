@@ -19,7 +19,7 @@ export const CONFIG = {
       "Simulador_colas/cliente9.png",
     ],
     asesoras: ["Simulador_colas/asesora.png", "Simulador_colas/asesora2.png"],
-    oficina: "Simulador_colas/oficina.png",
+    oficina: "oficina.png",
   },
 
   visual: {
