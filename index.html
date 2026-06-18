@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simulador de Teoría de Colas | Agencia de Viajes</title>
+    <meta
+      name="description"
+      content="Simulación visual profesional de teoría de colas para una agencia de viajes con flujo FIFO, métricas en tiempo real y escenarios operativos."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="hero-panel">
+        <div>
+          <p class="eyebrow">Simulación operativa</p>
+          <h1>Simulador de Teoría de Colas para Agencia de Viajes</h1>
+          <p class="hero-copy">
+            Visualiza el flujo real de atención con énfasis en la operación:
+            llegada, sala de espera, atención y salida.
+          </p>
+        </div>
+        <div class="hero-summary">
+          <span id="scenarioBadge" class="badge">Temporada Baja</span>
+          <div class="summary-card">
+            <span class="summary-label">Tiempo simulado</span>
+            <strong id="simulationClock">00:00:00</strong>
+          </div>
+        </div>
+      </header>
+
+      <main class="dashboard">
+        <aside class="control-column">
+          <section class="panel">
+            <div class="panel-title-row">
+              <h2>Escenarios</h2>
+              <span class="panel-note">Parámetros predefinidos</span>
+            </div>
+            <div class="scenario-grid">
+              <button
+                id="scenario-temporadaBaja"
+                class="scenario-button is-active"
+                type="button"
+                data-scenario="temporadaBaja"
+              >
+                <strong>Temporada Baja</strong>
+                <span>λ = 3/h, μ = 7/h, 1 asesora</span>
+              </button>
+              <button
+                id="scenario-temporadaAlta"
+                class="scenario-button"
+                type="button"
+                data-scenario="temporadaAlta"
+              >
+                <strong>Temporada Alta</strong>
+                <span>λ = 10/h, μ = 7/h por asesora, 2 asesoras</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-title-row">
+              <h2>Controles</h2>
+              <span id="statusLabel" class="panel-note">En espera</span>
+            </div>
+            <div class="control-row">
+              <button id="startButton" class="primary-button" type="button">
+                Iniciar
+              </button>
+              <button id="pauseButton" class="secondary-button" type="button">
+                Pausar
+              </button>
+              <button id="resetButton" class="ghost-button" type="button">
+                Reiniciar
+              </button>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-title-row">
+              <h2>Velocidad</h2>
+              <span id="speedFactorLabel" class="panel-note">x1.00</span>
+            </div>
+            <div class="speed-grid">
+              <label class="speed-label" for="speedFactor">
+                <span>Velocidad de la demostración</span>
+                <input
+                  id="speedFactor"
+                  name="speedFactor"
+                  type="range"
+                  min="0.7"
+                  max="1.5"
+                  value="1"
+                  step="0.01"
+                />
+              </label>
+              <p class="help-text">
+                En velocidad x1, las llegadas se simulan durante 8 horas
+                laborales equivalentes a 8 minutos reales. Si al cierre quedan
+                clientes pendientes, la simulación continúa hasta vaciar la sala
+                y completar la atención.
+              </p>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-title-row">
+              <h2>Modelo Teórico</h2>
+              <span id="theoryModelBadge" class="panel-note">Modelo M/M/1</span>
+            </div>
+            <details class="theory-details">
+              <summary>Ver sustento cuantitativo</summary>
+              <div class="theory-stack">
+                <article class="theory-summary-card">
+                  <span class="summary-label">Escenario analizado</span>
+                  <strong id="theoryScenarioTitle">Escenario 2: Temporada Baja</strong>
+                  <p id="theoryScenarioSummary" class="help-text"></p>
+                </article>
+
+                <article
+                  id="criticalCaseCard"
+                  class="insight-card insight-card-warning"
+                  hidden
+                >
+                  <span class="summary-label">Caso crítico</span>
+                  <strong id="criticalCaseTitle"></strong>
+                  <p id="criticalCaseDetail" class="help-text"></p>
+                </article>
+
+                <article class="insight-card">
+                  <span class="summary-label">Lectura operativa</span>
+                  <p id="theoryStability" class="help-text"></p>
+                  <p id="theoryReading" class="help-text"></p>
+                </article>
+
+                <ul id="theoryIndicators" class="analysis-list"></ul>
+              </div>
+            </details>
+          </section>
+        </aside>
+
+        <section class="visual-column">
+          <section class="panel scene-panel">
+            <div class="scene-header">
+              <div>
+                <h2>Simulador Operativo</h2>
+                <p>
+                  Entrada -> Sala de espera -> Asesoras -> Salida
+                </p>
+              </div>
+              <div class="legend">
+                <span><i class="legend-dot entry-dot"></i>Entrada</span>
+                <span><i class="legend-dot queue-dot"></i>Sala de espera</span>
+                <span><i class="legend-dot advisor-dot"></i>Servicio</span>
+                <span><i class="legend-dot exit-dot"></i>Salida</span>
+              </div>
+            </div>
+
+            <div id="scene" class="scene" aria-label="Escena de simulación horizontal">
+              <div class="zone-label zone-entry">Entrada</div>
+              <div class="zone-label zone-queue">Sala de espera</div>
+              <div class="zone-label zone-service">Asesoras</div>
+              <div class="zone-label zone-exit">Salida</div>
+
+              <div id="entryMarker" class="marker marker-entry"></div>
+              <div id="queueTrack" class="queue-track"></div>
+              <div id="advisorsLayer" class="advisors-layer"></div>
+              <div id="exitMarker" class="marker marker-exit"></div>
+              <div id="clientsLayer" class="clients-layer"></div>
+            </div>
+          </section>
+
+          <section class="panel metrics-panel">
+            <div class="panel-title-row">
+              <h2>Métricas en tiempo real</h2>
+              <span class="panel-note">Actualización continua</span>
+            </div>
+            <div class="metrics-grid metrics-grid-compact">
+              <article class="metric-card">
+                <span>Clientes generados</span>
+                <strong id="metricGenerated">0</strong>
+              </article>
+              <article class="metric-card">
+                <span>Clientes atendidos</span>
+                <strong id="metricServed">0</strong>
+              </article>
+              <article class="metric-card">
+                <span>Clientes esperando</span>
+                <strong id="metricWaiting">0</strong>
+              </article>
+              <article class="metric-card">
+                <span>Tiempo promedio de espera</span>
+                <strong id="metricAvgWait">0.00 min</strong>
+              </article>
+              <article class="metric-card">
+                <span>Tiempo promedio en sistema</span>
+                <strong id="metricAvgSystem">0.00 min</strong>
+              </article>
+              <article class="metric-card">
+                <span>Utilización de asesoras</span>
+                <strong id="metricUtilization">0.00 %</strong>
+              </article>
+              <article class="metric-card">
+                <span>Longitud promedio de cola</span>
+                <strong id="metricAvgQueue">0.00</strong>
+              </article>
+            </div>
+          </section>
+
+          <section class="secondary-panels">
+            <section class="panel">
+            <div class="panel-title-row">
+              <h2>Registro operativo</h2>
+              <span class="panel-note">Eventos recientes</span>
+            </div>
+            <ul id="eventLog" class="event-log"></ul>
+            </section>
+
+            <section class="panel analysis-panel">
+            <div class="panel-title-row">
+              <h2>Comparativo y Mejoras</h2>
+              <span class="panel-note">Resumen de decisión</span>
+            </div>
+            <div class="analysis-section">
+              <article class="insight-card">
+                <span class="summary-label">Síntesis comparativa</span>
+                <p id="comparativeSummary" class="help-text"></p>
+              </article>
+              <div>
+                <h3 class="subsection-title">Comparación de escenarios</h3>
+                <ul id="comparativeList" class="analysis-list"></ul>
+              </div>
+              <div>
+                <h3 class="subsection-title">Propuestas de mejora</h3>
+                <ul id="proposalList" class="analysis-list"></ul>
+              </div>
+            </div>
+            </section>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <div id="summaryModal" class="modal-backdrop" hidden>
+      <div
+        class="modal-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="summaryModalTitle"
+      >
+        <div class="modal-header">
+          <div>
+            <span class="summary-label">Cierre de simulación</span>
+            <h2 id="summaryModalTitle">Resumen de la corrida</h2>
+          </div>
+          <button id="closeSummaryModal" class="ghost-button modal-close-button" type="button">
+            Cerrar
+          </button>
+        </div>
+
+        <p id="summaryModalNote" class="help-text modal-note"></p>
+
+        <div class="modal-grid">
+          <article class="metric-card">
+            <span>Escenario</span>
+            <strong id="summaryScenario">-</strong>
+          </article>
+          <article class="metric-card">
+            <span>Modelo</span>
+            <strong id="summaryModel">-</strong>
+          </article>
+          <article class="metric-card">
+            <span>Tiempo total simulado</span>
+            <strong id="summaryTotalTime">-</strong>
+          </article>
+          <article class="metric-card">
+            <span>Tiempo extra de vaciado</span>
+            <strong id="summaryCleanupTime">-</strong>
+          </article>
+          <article class="metric-card">
+            <span>Clientes generados</span>
+            <strong id="summaryGenerated">0</strong>
+          </article>
+          <article class="metric-card">
+            <span>Clientes atendidos</span>
+            <strong id="summaryServed">0</strong>
+          </article>
+          <article class="metric-card">
+            <span>Clientes rechazados</span>
+            <strong id="summaryRejected">0</strong>
+          </article>
+          <article class="metric-card">
+            <span>Utilización</span>
+            <strong id="summaryUtilization">0 %</strong>
+          </article>
+          <article class="metric-card">
+            <span>Tiempo promedio de espera</span>
+            <strong id="summaryAvgWait">0 min</strong>
+          </article>
+          <article class="metric-card">
+            <span>Tiempo promedio en sistema</span>
+            <strong id="summaryAvgSystem">0 min</strong>
+          </article>
+          <article class="metric-card">
+            <span>Longitud promedio de sala</span>
+            <strong id="summaryAvgQueue">0</strong>
+          </article>
+          <article class="metric-card">
+            <span>Tiempo ocioso total</span>
+            <strong id="summaryIdleTime">0 h</strong>
+          </article>
+        </div>
+
+        <div class="modal-sections">
+          <article class="insight-card">
+            <span class="summary-label">Lectura de esta corrida</span>
+            <p id="summaryRunInterpretation" class="help-text"></p>
+          </article>
+          <article class="insight-card">
+            <span class="summary-label">Necesidad de personal</span>
+            <ul id="summaryStaffingList" class="analysis-list"></ul>
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="./simulation.js"></script>
+  </body>
+</html>
