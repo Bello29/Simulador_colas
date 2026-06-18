@@ -7,19 +7,19 @@
 export const CONFIG = {
   sprites: {
     clientes: [
-      "/cliente.png",
-      "/cliente1.png",
-      "/cliente2.png",
-      "/cliente3.png",
-      "/cliente4.png",
-      "/cliente5.png",
-      "/cliente6.png",
-      "/cliente7.png",
-      "/cliente8.png",
-      "/cliente9.png",
+      "Simulador_colas/cliente.png",
+      "Simulador_colas/cliente1.png",
+      "Simulador_colas/cliente2.png",
+      "Simulador_colas/cliente3.png",
+      "Simulador_colas/cliente4.png",
+      "Simulador_colas/cliente5.png",
+      "Simulador_colas/cliente6.png",
+      "Simulador_colas/cliente7.png",
+      "Simulador_colas/cliente8.png",
+      "Simulador_colas/cliente9.png",
     ],
-    asesoras: ["/asesora.png", "/asesora2.png"],
-    oficina: "/oficina.png",
+    asesoras: ["Simulador_colas/asesora.png", "Simulador_colas/asesora2.png"],
+    oficina: "Simulador_colas/oficina.png",
   },
 
   visual: {
